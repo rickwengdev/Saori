@@ -1,20 +1,30 @@
 require('dotenv').config();
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const morgan = require('morgan');
 const Logger = require('./shared/utils/Logger');
+const checkAndCreateTables = require('./shared/database/checkAndCreateTable');
 
 const app = express();
 
 // Middlewares
 app.use(cors({ origin: process.env.API_URL || '*', credentials: true }));
 app.use(express.json());
+app.use(cookieParser());
 // 將 HTTP 請求日誌導向我們的 Winston Logger
 app.use(morgan('combined', { 
     stream: { write: (msg) => Logger.info(msg.trim()) } 
 }));
 
 // === 模組路由掛載 ===
+// 在啟動時檢查並建立必要的資料庫表格
+async function initializeApp() {
+    console.log('正在初始化資料庫...');
+    await checkAndCreateTables.checkAndCreateAllTables();
+    console.log('資料庫初始化完成');
+    return app;
+}
 
 // 1. Agent 模組 (AI 對話)
 const agentRoutes = require('./modules/agent/agent.routes');
@@ -52,4 +62,4 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: 'Internal Server Error' });
 });
 
-module.exports = app;
+module.exports = {app, initializeApp };

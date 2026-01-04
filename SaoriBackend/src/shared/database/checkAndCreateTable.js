@@ -1,9 +1,21 @@
-const db = require('../models/db'); // 封裝的資料庫連接模組
-const Logger = require('../middlewares/errorhandleService'); // 引入集中化 Logger
+const db = require('./db'); // 封裝的資料庫連接模組
+const Logger = require('../utils/Logger'); // 引入集中化 Logger
 
 class DatabaseService {
   constructor() {
     this.tables = [
+      {
+        name: 'Conversations',
+        schema: `
+          CREATE TABLE Conversations (
+              id INT AUTO_INCREMENT PRIMARY KEY,
+              session_id VARCHAR(255) NOT NULL,
+              role ENUM('user', 'model') NOT NULL,
+              content TEXT NOT NULL,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          );
+        `,
+      },
       {
         name: 'Servers',
         schema: `

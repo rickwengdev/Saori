@@ -1,6 +1,6 @@
 # Use the official Node.js image.
 # https://hub.docker.com/_/node
-FROM node
+FROM node:latest
 
 # Create and change to the app directory.
 WORKDIR /usr/src/app
@@ -19,4 +19,4 @@ COPY . .
 EXPOSE 3000
 
 # Run the web service on container startup.
-CMD [ "node", "app.js" ]
+CMD [ "node", "src/server.js" ]

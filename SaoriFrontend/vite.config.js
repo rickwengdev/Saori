@@ -14,8 +14,8 @@ export default defineConfig({
     port: 443, // 更改開發伺服器端口
     host: true, // 允許外部訪問
     https: {
-      key: fs.readFileSync(path.resolve(__dirname, 'server.key')),
-      cert: fs.readFileSync(path.resolve(__dirname, 'server.crt')),
+      key: fs.readFileSync(path.resolve(__dirname, 'certs/server.key')),
+      cert: fs.readFileSync(path.resolve(__dirname, 'certs/server.crt')),
     },
   },
 });

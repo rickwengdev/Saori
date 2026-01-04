@@ -5,8 +5,8 @@ services:
     container_name: mariadb_container
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: discord_bot
-      MYSQL_USER: discord_user
+      MYSQL_DATABASE: saori_db
+      MYSQL_USER: saori_user
       MYSQL_PASSWORD: password123
     ports:
       - "3306:3306"
@@ -18,6 +18,7 @@ services:
   # 后端服务
   backend:
     image: backend
+    build: ./SaoriBackend
     container_name: backend_container
     ports:
       - "3000:3000"
@@ -31,6 +32,7 @@ services:
   # 前端服务
   frontend:
     image: frontend
+    build: ./SaoriFrontend
     container_name: frontend_container
     ports:
       - "443:443"
@@ -42,6 +44,7 @@ services:
   # 機器人服務
   bot:
     image: bot
+    build: ./SaoriBot
     container_name: bot_container
     depends_on:
       - mariadb
