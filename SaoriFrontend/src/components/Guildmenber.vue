@@ -76,13 +76,13 @@ export default {
         async fetchData() {
             const serverId = this.$route.params.serverId;
             try {
-                const channelsResponse = await apiService.get(`/api/${serverId}/channels`);
+                const channelsResponse = await apiService.get(`${serverId}/channels`);
                 const channels = channelsResponse.channels || [];
                 this.textChannels = channels.filter(channel => channel.type === 0).map(channel => ({
                     id: channel.id,
                     name: channel.name,
                 }));
-                const previewResponse = await apiService.get(`/api/${serverId}/getWelcomeLeave`);
+                const previewResponse = await apiService.get(`${serverId}/getWelcomeLeave`);
                 const config = previewResponse.config || {};
                 this.preview = {
                     welcomeChannel: this.getChannelName(config.welcome_channel_id),
@@ -99,7 +99,7 @@ export default {
         async saveWelcomeLeaveSettings() {
             const serverId = this.$route.params.serverId;
             try {
-                await apiService.post(`/api/${serverId}/updateWelcomeLeave`, {
+                await apiService.post(`${serverId}/updateWelcomeLeave`, {
                     welcomeChannelId: this.welcomeChannel,
                     leaveChannelId: this.leaveChannel,
                 });

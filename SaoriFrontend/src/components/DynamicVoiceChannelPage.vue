@@ -66,7 +66,7 @@ export default {
         async fetchData() {
             const serverId = this.$route.params.serverId;
             try {
-                const channelsResponse = await apiService.get(`/api/${serverId}/channels`);
+                const channelsResponse = await apiService.get(`${serverId}/channels`);
                 const channels = channelsResponse?.channels || [];
                 this.voiceChannels = channels
                     .filter(channel => channel.type === 2)
@@ -74,7 +74,7 @@ export default {
                         id: channel.id,
                         name: channel.name,
                     }));
-                const previewResponse = await apiService.get(`/api/${serverId}/dynamic-voice-channels`);
+                const previewResponse = await apiService.get(`${serverId}/dynamic-voice-channels`);
                 const config = previewResponse.config || {};
                 this.preview = {
                     dynamicVoiceChannel: this.getChannelName(config.base_channel_id),
@@ -90,7 +90,7 @@ export default {
         async saveLogSettings() {
             const serverId = this.$route.params.serverId;
             try {
-                await apiService.post(`/api/${serverId}/dynamic-voice-channels`, {
+                await apiService.post(`${serverId}/dynamic-voice-channels`, {
                     baseChannelId: this.dynamicVoiceChannel,
                 });
                 alert("Settings saved successfully!");

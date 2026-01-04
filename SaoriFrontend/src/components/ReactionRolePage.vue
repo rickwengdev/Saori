@@ -110,9 +110,9 @@ export default {
       try {
         // 同步取得三個端點資料
         const [channelsRes, rolesRes, emojisRes] = await Promise.all([
-          apiService.get(`/api/${serverId}/channels`),
-          apiService.get(`/api/${serverId}/roles`),
-          apiService.get(`/api/${serverId}/emojis`),
+          apiService.get(`${serverId}/channels`),
+          apiService.get(`${serverId}/roles`),
+          apiService.get(`${serverId}/emojis`),
         ]);
 
         // 1️⃣ 驗證並處理頻道資料
@@ -183,7 +183,7 @@ export default {
       const serverId = this.$route.params.serverId;
       try {
         console.log("Saving:", this.reactionRole);
-        await apiService.post(`/api/${serverId}/reaction-roles`, this.reactionRole);
+        await apiService.post(`${serverId}/reaction-roles`, this.reactionRole);
         alert("Reaction Role saved successfully!");
         this.fetchPreviewConfig();
       } catch (error) {
@@ -194,7 +194,7 @@ export default {
     async deleteReactionRole(role) {
       const serverId = this.$route.params.serverId;
       try {
-        await apiService.delete(`/api/${serverId}/reaction-roles`, {
+        await apiService.delete(`${serverId}/reaction-roles`, {
           messageId: role.messageId,
           emoji: role.emoji, // 可傳 name 或 id
         });

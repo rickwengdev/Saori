@@ -55,15 +55,17 @@ npm install
 創建 `.env` 文件並設置以下變量：
 
 ```bash
-DB_HOST=127.0.0.1
-DB_NAME=discord_bot
-DB_USER=discord_user
+DB_HOST=mariadb_container
+DB_NAME=saori_db
+DB_USER=saori_user
 DB_PASSWORD=password123
 API_URL=https://localhost
 JWT_SECRET=secret
 DISCORD_CLIENT_ID=
 DISCORD_CLIENT_SECRET=
 DISCORD_BOT_TOKEN=
+GEMINI_API_KEY=
+USE_HTTPS=
 ```
 
 ---

@@ -66,13 +66,13 @@ export default {
         async fetchData() {
             const serverId = this.$route.params.serverId;
             try {
-                const channelsResponse = await apiService.get(`/api/${serverId}/channels`);
+                const channelsResponse = await apiService.get(`${serverId}/channels`);
                 const channels = channelsResponse?.channels || [];
                 this.textChannels = channels.filter(channel => channel.type === 0).map(channel => ({
                     id: channel.id,
                     name: channel.name,
                 }));
-                const previewResponse = await apiService.get(`/api/${serverId}/log-channel`);
+                const previewResponse = await apiService.get(`${serverId}/log-channel`);
                 const config = previewResponse.config || {};
                 this.preview = {
                     logChannel: this.getChannelName(config.log_channel_id),
@@ -88,7 +88,7 @@ export default {
         async saveLogSettings() {
             const serverId = this.$route.params.serverId;
             try {
-                await apiService.post(`/api/${serverId}/log-channel`, {
+                await apiService.post(`${serverId}/log-channel`, {
                     logChannelId: this.logChannel,
                 });
                 alert("Settings saved successfully!");
