@@ -66,7 +66,7 @@ export default {
         async fetchData() {
             const serverId = this.$route.params.serverId;
             try {
-                const channelsResponse = await apiService.get(`${serverId}/channels`);
+                const channelsResponse = await apiService.get(`/channel/${serverId}/channels`);
                 const channels = channelsResponse?.channels || [];
 
                 // 過濾文字頻道
@@ -77,7 +77,7 @@ export default {
                         name: channel.name,
                     }));
 
-                const trackingResponse = await apiService.get(`${serverId}/trackingMembers`);
+                const trackingResponse = await apiService.get(`/tracking/${serverId}/trackingMembers`);
                 const config = trackingResponse.config || {};
 
                 // 設置預覽數據
@@ -96,7 +96,7 @@ export default {
         async saveTrackingSettings() {
             const serverId = this.$route.params.serverId;
             try {
-                await apiService.post(`${serverId}/trackingMembers`, {
+                await apiService.post(`/tracking/${serverId}/trackingMembers`, {
                     trackingChannelId: this.trackingChannel,
                 });
                 alert("Settings saved successfully!");

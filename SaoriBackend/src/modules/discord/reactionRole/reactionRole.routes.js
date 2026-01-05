@@ -4,8 +4,8 @@ const authenticateToken = require('../../../shared/middlewares/authenticateToken
 const router = express.Router();
 
 /**
- * 獲取伺服器的反應角色設定
- * GET /api/reaction-role/:serverId/reaction-roles
+ * 獲取伺服器的角色
+ * GET /api/reaction-role/:serverId/roles
  */
 router.get('/:serverId/roles', async (req, res, next) => {
   try {
