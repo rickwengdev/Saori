@@ -69,14 +69,6 @@ const routes = [
       title: 'Tracking Members Number - My App',
     },
   },
-  {
-    path: '/:pathMatch(.*)*',
-    name: 'notfound',
-    component: () => import('../components/NotFoundPage.vue'), // 動態加載 404 頁面
-    meta: {
-      title: '404 - Page Not Found',
-    },
-  },
 ];
 
 const router = createRouter({
