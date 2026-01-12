@@ -5,21 +5,21 @@
         <div class="config-container">
             <Sidebar @option-selected="" :class="{ 'hidden': isMobile && isSidebarHidden }" />
             <main class="main-content">
-                <section v-if="currentSection === 'tracking'" class="config-section">
-                    <h2>Member Tracking Settings</h2>
-                    <form @submit.prevent="saveTrackingSettings" class="form">
+                <section v-if="currentSection === 'welcome'" class="config-section">
+                    <h2>Dynamic voice channel Settings</h2>
+                    <form @submit.prevent="saveLogSettings" class="form">
                         <div class="form-group">
-                            <label for="tracking-channel">Tracking Channel:</label>
-                            <select id="tracking-channel" v-model="trackingChannel" class="form-select">
-                                <option v-if="textChannels.length === 0" disabled>No text channels available</option>
-                                <option v-for="channel in textChannels" :key="channel.id" :value="channel.id">{{ channel.name }}</option>
+                            <label for="log-Channel">Dynamic Voice Channel:</label>
+                            <select id="log-Channel" v-model="dynamicVoiceChannel" class="form-select">
+                                <option v-if="voiceChannels.length === 0" disabled>No voice channels available</option>
+                                <option v-for="channel in voiceChannels" :key="channel.id" :value="channel.id">{{ channel.name }}</option>
                             </select>
                         </div>
                         <button type="submit" class="save-button">Save</button>
                     </form>
                     <div class="preview">
                         <h3>Current Settings</h3>
-                        <p>Tracking Channel: {{ preview.trackingChannel || 'N/A' }}</p>
+                        <p>Dynamic Voice Channel: {{ preview.dynamicVoiceChannel || 'N/A' }}</p>
                     </div>
                 </section>
             </main>
@@ -28,30 +28,30 @@
 </template>
 
 <script>
-import Sidebar from "@/components/Sidebar.vue";
-import NavigationBar from "@/components/NavigationBar.vue";
+import Sidebar from "@/views/discord/Sidebar.vue";
+import NavigationBar from "@/views/discord/NavigationBar.vue";
 import apiService from "@/services/apiService";
 
 export default {
     components: { Sidebar, NavigationBar },
     data() {
         return {
-            currentSection: "tracking",
-            textChannels: [],
-            trackingChannel: null,
+            currentSection: "welcome",
+            voiceChannels: [],
+            dynamicVoiceChannel: null,
             preview: {
-                trackingChannel: null,
+                dynamicVoiceChannel: null,
             },
             loading: true,
             isSidebarHidden: false,
             isMobile: window.innerWidth <= 768,
         };
     },
-    async created() {
+    created() {
         window.addEventListener('resize', this.checkMobile);
-        await this.fetchData();
+        this.fetchData();
     },
-    async beforeUnmount() {
+    beforeUnmount() {
         window.removeEventListener('resize', this.checkMobile);
     },
     methods: {
@@ -68,24 +68,18 @@ export default {
             try {
                 const channelsResponse = await apiService.get(`/channel/${serverId}/channels`);
                 const channels = channelsResponse?.channels || [];
-
-                // 過濾文字頻道
-                this.textChannels = channels
+                this.voiceChannels = channels
                     .filter(channel => channel.type === 2)
                     .map(channel => ({
                         id: channel.id,
                         name: channel.name,
                     }));
-
-                const trackingResponse = await apiService.get(`/tracking/${serverId}/trackingMembers`);
-                const config = trackingResponse.config || {};
-
-                // 設置預覽數據
+                const previewResponse = await apiService.get(`/dynamic/${serverId}/dynamic-voice-channels`);
+                const config = previewResponse.config || {};
                 this.preview = {
-                    trackingChannel: this.getChannelName(config.trackingmembers_channel_id),
+                    dynamicVoiceChannel: this.getChannelName(config.base_channel_id),
                 };
-
-                this.trackingChannel = config.trackingmembers_channel_id || null;
+                this.dynamicVoiceChannel = config.base_channel_id || null;
             } catch (error) {
                 console.error("Error fetching data:", error);
                 alert("Failed to load data. Please try again.");
@@ -93,11 +87,11 @@ export default {
                 this.loading = false;
             }
         },
-        async saveTrackingSettings() {
+        async saveLogSettings() {
             const serverId = this.$route.params.serverId;
             try {
-                await apiService.post(`/tracking/${serverId}/trackingMembers`, {
-                    trackingChannelId: this.trackingChannel,
+                await apiService.post(`/dynamic/${serverId}/dynamic-voice-channels`, {
+                    baseChannelId: this.dynamicVoiceChannel,
                 });
                 alert("Settings saved successfully!");
                 await this.fetchData();
@@ -107,7 +101,7 @@ export default {
             }
         },
         getChannelName(channelId) {
-            const channel = this.textChannels.find(channel => channel.id === channelId);
+            const channel = this.voiceChannels.find(channel => channel.id === channelId);
             return channel ? channel.name : "N/A";
         },
     },
@@ -186,6 +180,7 @@ export default {
     border-radius: 5px;
     padding: 10px 20px;
     cursor: pointer;
+    width: 100%;
 }
 
 .save-button:hover {

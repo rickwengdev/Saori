@@ -6,20 +6,20 @@
             <Sidebar @option-selected="" :class="{ 'hidden': isMobile && isSidebarHidden }" />
             <main class="main-content">
                 <section v-if="currentSection === 'welcome'" class="config-section">
-                    <h2>Dynamic voice channel Settings</h2>
+                    <h2>Log Settings</h2>
                     <form @submit.prevent="saveLogSettings" class="form">
                         <div class="form-group">
-                            <label for="log-Channel">Dynamic Voice Channel:</label>
-                            <select id="log-Channel" v-model="dynamicVoiceChannel" class="form-select">
-                                <option v-if="voiceChannels.length === 0" disabled>No voice channels available</option>
-                                <option v-for="channel in voiceChannels" :key="channel.id" :value="channel.id">{{ channel.name }}</option>
+                            <label for="log-Channel">Log Channel:</label>
+                            <select id="log-Channel" v-model="logChannel" class="form-select">
+                                <option v-if="textChannels.length === 0" disabled>No text channels available</option>
+                                <option v-for="channel in textChannels" :key="channel.id" :value="channel.id">{{ channel.name }}</option>
                             </select>
                         </div>
                         <button type="submit" class="save-button">Save</button>
                     </form>
                     <div class="preview">
                         <h3>Current Settings</h3>
-                        <p>Dynamic Voice Channel: {{ preview.dynamicVoiceChannel || 'N/A' }}</p>
+                        <p>Log Channel: {{ preview.logChannel || 'N/A' }}</p>
                     </div>
                 </section>
             </main>
@@ -28,8 +28,8 @@
 </template>
 
 <script>
-import Sidebar from "@/components/Sidebar.vue";
-import NavigationBar from "@/components/NavigationBar.vue";
+import Sidebar from "@/views/discord/Sidebar.vue";
+import NavigationBar from "@/views/discord/NavigationBar.vue";
 import apiService from "@/services/apiService";
 
 export default {
@@ -37,10 +37,10 @@ export default {
     data() {
         return {
             currentSection: "welcome",
-            voiceChannels: [],
-            dynamicVoiceChannel: null,
+            textChannels: [],
+            logChannel: null,
             preview: {
-                dynamicVoiceChannel: null,
+                logChannel: null,
             },
             loading: true,
             isSidebarHidden: false,
@@ -68,18 +68,16 @@ export default {
             try {
                 const channelsResponse = await apiService.get(`/channel/${serverId}/channels`);
                 const channels = channelsResponse?.channels || [];
-                this.voiceChannels = channels
-                    .filter(channel => channel.type === 2)
-                    .map(channel => ({
-                        id: channel.id,
-                        name: channel.name,
-                    }));
-                const previewResponse = await apiService.get(`/dynamic/${serverId}/dynamic-voice-channels`);
+                this.textChannels = channels.filter(channel => channel.type === 0).map(channel => ({
+                    id: channel.id,
+                    name: channel.name,
+                }));
+                const previewResponse = await apiService.get(`/log/${serverId}/log-channel`);
                 const config = previewResponse.config || {};
                 this.preview = {
-                    dynamicVoiceChannel: this.getChannelName(config.base_channel_id),
+                    logChannel: this.getChannelName(config.log_channel_id),
                 };
-                this.dynamicVoiceChannel = config.base_channel_id || null;
+                this.logChannel = config.log_channel_id || null;
             } catch (error) {
                 console.error("Error fetching data:", error);
                 alert("Failed to load data. Please try again.");
@@ -90,8 +88,8 @@ export default {
         async saveLogSettings() {
             const serverId = this.$route.params.serverId;
             try {
-                await apiService.post(`/dynamic/${serverId}/dynamic-voice-channels`, {
-                    baseChannelId: this.dynamicVoiceChannel,
+                await apiService.post(`/log/${serverId}/log-channel`, {
+                    logChannelId: this.logChannel,
                 });
                 alert("Settings saved successfully!");
                 await this.fetchData();
@@ -101,7 +99,7 @@ export default {
             }
         },
         getChannelName(channelId) {
-            const channel = this.voiceChannels.find(channel => channel.id === channelId);
+            const channel = this.textChannels.find(channel => channel.id === channelId);
             return channel ? channel.name : "N/A";
         },
     },
@@ -180,7 +178,6 @@ export default {
     border-radius: 5px;
     padding: 10px 20px;
     cursor: pointer;
-    width: 100%;
 }
 
 .save-button:hover {

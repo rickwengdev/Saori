@@ -5,19 +5,12 @@
         <div class="config-container">
             <Sidebar @option-selected="" :class="{ 'hidden': isMobile && isSidebarHidden }" />
             <main class="main-content">
-                <section v-if="currentSection === 'welcome'" class="config-section">
-                    <h2>Welcome Message Settings</h2>
-                    <form @submit.prevent="saveWelcomeLeaveSettings" class="form">
+                <section v-if="currentSection === 'tracking'" class="config-section">
+                    <h2>Member Tracking Settings</h2>
+                    <form @submit.prevent="saveTrackingSettings" class="form">
                         <div class="form-group">
-                            <label for="welcome-channel">Welcome Channel:</label>
-                            <select id="welcome-channel" v-model="welcomeChannel" class="form-select">
-                                <option v-if="textChannels.length === 0" disabled>No text channels available</option>
-                                <option v-for="channel in textChannels" :key="channel.id" :value="channel.id">{{ channel.name }}</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="leave-channel">Leave Channel:</label>
-                            <select id="leave-channel" v-model="leaveChannel" class="form-select">
+                            <label for="tracking-channel">Tracking Channel:</label>
+                            <select id="tracking-channel" v-model="trackingChannel" class="form-select">
                                 <option v-if="textChannels.length === 0" disabled>No text channels available</option>
                                 <option v-for="channel in textChannels" :key="channel.id" :value="channel.id">{{ channel.name }}</option>
                             </select>
@@ -26,8 +19,7 @@
                     </form>
                     <div class="preview">
                         <h3>Current Settings</h3>
-                        <p>Welcome Channel: {{ preview.welcomeChannel || 'N/A' }}</p>
-                        <p>Leave Channel: {{ preview.leaveChannel || 'N/A' }}</p>
+                        <p>Tracking Channel: {{ preview.trackingChannel || 'N/A' }}</p>
                     </div>
                 </section>
             </main>
@@ -36,32 +28,30 @@
 </template>
 
 <script>
-import Sidebar from "@/components/Sidebar.vue";
-import NavigationBar from "@/components/NavigationBar.vue";
+import Sidebar from "@/views/discord/Sidebar.vue";
+import NavigationBar from "@/views/discord/NavigationBar.vue";
 import apiService from "@/services/apiService";
 
 export default {
     components: { Sidebar, NavigationBar },
     data() {
         return {
-            currentSection: "welcome",
+            currentSection: "tracking",
             textChannels: [],
-            welcomeChannel: null,
-            leaveChannel: null,
+            trackingChannel: null,
             preview: {
-                welcomeChannel: null,
-                leaveChannel: null,
+                trackingChannel: null,
             },
             loading: true,
             isSidebarHidden: false,
             isMobile: window.innerWidth <= 768,
         };
     },
-    created() {
+    async created() {
         window.addEventListener('resize', this.checkMobile);
-        this.fetchData();
+        await this.fetchData();
     },
-    beforeUnmount() {
+    async beforeUnmount() {
         window.removeEventListener('resize', this.checkMobile);
     },
     methods: {
@@ -77,41 +67,48 @@ export default {
             const serverId = this.$route.params.serverId;
             try {
                 const channelsResponse = await apiService.get(`/channel/${serverId}/channels`);
-                const channels = channelsResponse.channels || [];
-                this.textChannels = channels.filter(channel => channel.type === 0).map(channel => ({
-                    id: channel.id,
-                    name: channel.name,
-                }));
-                const previewResponse = await apiService.get(`/welcome-leave/${serverId}/getWelcomeLeave`);
-                const config = previewResponse.config || {};
+                const channels = channelsResponse?.channels || [];
+
+                // 過濾文字頻道
+                this.textChannels = channels
+                    .filter(channel => channel.type === 2)
+                    .map(channel => ({
+                        id: channel.id,
+                        name: channel.name,
+                    }));
+
+                const trackingResponse = await apiService.get(`/tracking/${serverId}/trackingMembers`);
+                const config = trackingResponse.config || {};
+
+                // 設置預覽數據
                 this.preview = {
-                    welcomeChannel: this.getChannelName(config.welcome_channel_id),
-                    leaveChannel: this.getChannelName(config.leave_channel_id),
+                    trackingChannel: this.getChannelName(config.trackingmembers_channel_id),
                 };
-                this.welcomeChannel = config.welcome_channel_id || null;
-                this.leaveChannel = config.leave_channel_id || null;
+
+                this.trackingChannel = config.trackingmembers_channel_id || null;
             } catch (error) {
                 console.error("Error fetching data:", error);
+                alert("Failed to load data. Please try again.");
             } finally {
                 this.loading = false;
             }
         },
-        async saveWelcomeLeaveSettings() {
+        async saveTrackingSettings() {
             const serverId = this.$route.params.serverId;
             try {
-                await apiService.post(`/welcome-leave/${serverId}/updateWelcomeLeave`, {
-                    welcomeChannelId: this.welcomeChannel,
-                    leaveChannelId: this.leaveChannel,
+                await apiService.post(`/tracking/${serverId}/trackingMembers`, {
+                    trackingChannelId: this.trackingChannel,
                 });
                 alert("Settings saved successfully!");
                 await this.fetchData();
             } catch (error) {
                 console.error("Error saving settings:", error);
+                alert("Failed to save settings. Please try again.");
             }
         },
         getChannelName(channelId) {
             const channel = this.textChannels.find(channel => channel.id === channelId);
-            return channel ? channel.name : 'N/A';
+            return channel ? channel.name : "N/A";
         },
     },
 };

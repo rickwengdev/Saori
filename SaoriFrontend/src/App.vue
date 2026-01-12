@@ -1,19 +1,24 @@
 <template>
-  <div id="app">
-    <router-view />
-  </div>
+  <n-config-provider :theme="darkTheme">
+    <n-message-provider>
+      <n-dialog-provider>
+        <router-view />
+      </n-dialog-provider>
+    </n-message-provider>
+  </n-config-provider>
 </template>
 
-<script>
-export default {
-  name: 'App',
-};
+<script setup>
+import { NConfigProvider, NMessageProvider, NDialogProvider, darkTheme } from 'naive-ui';
 </script>
 
 <style>
-/* 添加全局樣式（可選） */
+/* 全局重置 */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  padding: 0;
+  font-family: v-sans, system-ui, -apple-system, sans-serif;
+  background-color: #101014; /*配合暗色主題*/
+  color: #fff;
 }
 </style>

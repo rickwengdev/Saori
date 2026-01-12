@@ -6,11 +6,18 @@
             <Sidebar @option-selected="" :class="{ 'hidden': isMobile && isSidebarHidden }" />
             <main class="main-content">
                 <section v-if="currentSection === 'welcome'" class="config-section">
-                    <h2>Log Settings</h2>
-                    <form @submit.prevent="saveLogSettings" class="form">
+                    <h2>Welcome Message Settings</h2>
+                    <form @submit.prevent="saveWelcomeLeaveSettings" class="form">
                         <div class="form-group">
-                            <label for="log-Channel">Log Channel:</label>
-                            <select id="log-Channel" v-model="logChannel" class="form-select">
+                            <label for="welcome-channel">Welcome Channel:</label>
+                            <select id="welcome-channel" v-model="welcomeChannel" class="form-select">
+                                <option v-if="textChannels.length === 0" disabled>No text channels available</option>
+                                <option v-for="channel in textChannels" :key="channel.id" :value="channel.id">{{ channel.name }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="leave-channel">Leave Channel:</label>
+                            <select id="leave-channel" v-model="leaveChannel" class="form-select">
                                 <option v-if="textChannels.length === 0" disabled>No text channels available</option>
                                 <option v-for="channel in textChannels" :key="channel.id" :value="channel.id">{{ channel.name }}</option>
                             </select>
@@ -19,7 +26,8 @@
                     </form>
                     <div class="preview">
                         <h3>Current Settings</h3>
-                        <p>Log Channel: {{ preview.logChannel || 'N/A' }}</p>
+                        <p>Welcome Channel: {{ preview.welcomeChannel || 'N/A' }}</p>
+                        <p>Leave Channel: {{ preview.leaveChannel || 'N/A' }}</p>
                     </div>
                 </section>
             </main>
@@ -28,8 +36,8 @@
 </template>
 
 <script>
-import Sidebar from "@/components/Sidebar.vue";
-import NavigationBar from "@/components/NavigationBar.vue";
+import Sidebar from "@/views/discord/Sidebar.vue";
+import NavigationBar from "@/views/discord/NavigationBar.vue";
 import apiService from "@/services/apiService";
 
 export default {
@@ -38,9 +46,11 @@ export default {
         return {
             currentSection: "welcome",
             textChannels: [],
-            logChannel: null,
+            welcomeChannel: null,
+            leaveChannel: null,
             preview: {
-                logChannel: null,
+                welcomeChannel: null,
+                leaveChannel: null,
             },
             loading: true,
             isSidebarHidden: false,
@@ -67,40 +77,41 @@ export default {
             const serverId = this.$route.params.serverId;
             try {
                 const channelsResponse = await apiService.get(`/channel/${serverId}/channels`);
-                const channels = channelsResponse?.channels || [];
+                const channels = channelsResponse.channels || [];
                 this.textChannels = channels.filter(channel => channel.type === 0).map(channel => ({
                     id: channel.id,
                     name: channel.name,
                 }));
-                const previewResponse = await apiService.get(`/log/${serverId}/log-channel`);
+                const previewResponse = await apiService.get(`/welcome-leave/${serverId}/getWelcomeLeave`);
                 const config = previewResponse.config || {};
                 this.preview = {
-                    logChannel: this.getChannelName(config.log_channel_id),
+                    welcomeChannel: this.getChannelName(config.welcome_channel_id),
+                    leaveChannel: this.getChannelName(config.leave_channel_id),
                 };
-                this.logChannel = config.log_channel_id || null;
+                this.welcomeChannel = config.welcome_channel_id || null;
+                this.leaveChannel = config.leave_channel_id || null;
             } catch (error) {
                 console.error("Error fetching data:", error);
-                alert("Failed to load data. Please try again.");
             } finally {
                 this.loading = false;
             }
         },
-        async saveLogSettings() {
+        async saveWelcomeLeaveSettings() {
             const serverId = this.$route.params.serverId;
             try {
-                await apiService.post(`/log/${serverId}/log-channel`, {
-                    logChannelId: this.logChannel,
+                await apiService.post(`/welcome-leave/${serverId}/updateWelcomeLeave`, {
+                    welcomeChannelId: this.welcomeChannel,
+                    leaveChannelId: this.leaveChannel,
                 });
                 alert("Settings saved successfully!");
                 await this.fetchData();
             } catch (error) {
                 console.error("Error saving settings:", error);
-                alert("Failed to save settings. Please try again.");
             }
         },
         getChannelName(channelId) {
             const channel = this.textChannels.find(channel => channel.id === channelId);
-            return channel ? channel.name : "N/A";
+            return channel ? channel.name : 'N/A';
         },
     },
 };

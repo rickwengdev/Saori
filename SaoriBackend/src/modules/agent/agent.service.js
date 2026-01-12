@@ -1,20 +1,25 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const OpenAI = require("openai"); // 改用 OpenAI SDK
 const glob = require('glob');
 const fs = require('fs').promises;
 const path = require('path');
 const Logger = require('../../shared/utils/Logger');
 const AgentModel = require('./agent.model');
 
-// 初始化 Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
 class AgentService {
     constructor() {
-        this.model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // 初始化 OpenAI Client，但指向 Google 的 Gemini 接口
+        this.client = new OpenAI({
+            apiKey: process.env.GEMINI_API_KEY, // 維持使用 Gemini Key
+            baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/" // 關鍵：指向 Google 的 OpenAI 兼容層
+        });
+
         // 指向專案根目錄 (從 src/modules/agent 往上跳 3 層)
         this.projectRoot = path.resolve(__dirname, '../../..');
     }
 
+    /**
+     * 讀取代碼庫 (RAG 核心) - 邏輯維持不變
+     */
     async _readCodebase() {
         try {
             const files = await glob.glob('src/**/*.{js,json,md}', {
@@ -36,33 +41,45 @@ class AgentService {
         }
     }
 
+    /**
+     * 對話核心
+     */
     async chat(sessionId, message) {
         try {
+            // 1. 讀取資料庫歷史紀錄
             const history = await AgentModel.getHistory(sessionId);
             
-            // 建構 Gemini 歷史格式
-            const chatHistory = history.map(h => ({
-                role: h.role,
-                parts: [{ text: h.content }]
+            // 2. 轉換格式：Database (user/model) -> OpenAI (user/assistant)
+            const messages = history.map(h => ({
+                role: h.role === 'model' ? 'assistant' : 'user', // OpenAI 不認得 'model'，要轉成 'assistant'
+                content: h.content
             }));
 
-            let systemInstruction = "你是 Saori，一個全能的後端 AI 助手。請用繁體中文回答。";
+            // 3. 準備 System Instruction
+            let systemPrompt = "你是 Saori，一個全能的後端 AI 助手。請用繁體中文回答。";
             
-            // 簡單的關鍵字檢測是否需要 RAG
-            if (message.includes('代碼') || message.includes('API') || message.includes('結構')) {
+            // RAG 判斷
+            if (message.includes('代碼') || message.includes('API') || message.includes('結構') || message.includes('agent') || message.includes('功能')) {
                 const codebase = await this._readCodebase();
-                systemInstruction += `\n\n你擁有讀取專案代碼的權限。目前的代碼庫如下：\n${codebase}`;
+                systemPrompt += `\n\n你擁有讀取專案代碼的權限。目前的代碼庫如下：\n${codebase}`;
             }
 
-            const chat = this.model.startChat({
-                history: chatHistory,
-                systemInstruction: systemInstruction
+            // 4. 構建完整的訊息鏈 (System -> History -> User Query)
+            const fullMessageChain = [
+                { role: "system", content: systemPrompt },
+                ...messages,
+                { role: "user", content: message }
+            ];
+
+            // 5. 發送請求 (使用標準 OpenAI 寫法)
+            const completion = await this.client.chat.completions.create({
+                model: "gemini-1.5-flash", // 這裡依然指定 Gemini 模型
+                messages: fullMessageChain,
             });
 
-            const result = await chat.sendMessage(message);
-            const responseText = result.response.text();
+            const responseText = completion.choices[0].message.content;
 
-            // 異步存檔
+            // 6. 存檔 (資料庫維持存 'model' 以保持一致性，或你也可以考慮以後改成 'assistant')
             await AgentModel.addMessage(sessionId, 'user', message);
             await AgentModel.addMessage(sessionId, 'model', responseText);
 
@@ -70,7 +87,7 @@ class AgentService {
 
         } catch (error) {
             Logger.error(`[AgentService] Chat Error: ${error.message}`);
-            throw new Error('Saori is thinking too hard and crashed.');
+            return `[系統錯誤] Saori 連線失敗: ${error.message}`;
         }
     }
 }

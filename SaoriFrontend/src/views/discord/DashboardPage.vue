@@ -40,7 +40,7 @@
 
 <script>
 import apiService from '@/services/apiService';
-import NavigationBar from '@/components/NavigationBar.vue';
+import NavigationBar from '@/views/discord/NavigationBar.vue';
 const APIURL = import.meta.env.VITE_APP_BASE_URL;
 const ClientId = import.meta.env.VITE_APP_ClientId;
 

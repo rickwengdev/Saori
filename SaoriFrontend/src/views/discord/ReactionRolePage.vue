@@ -77,8 +77,8 @@
 </template>
 
 <script>
-import Sidebar from "@/components/Sidebar.vue";
-import NavigationBar from "@/components/NavigationBar.vue";
+import Sidebar from "@/views/discord/Sidebar.vue";
+import NavigationBar from "@/views/discord/NavigationBar.vue";
 import apiService from "@/services/apiService";
 
 export default {
