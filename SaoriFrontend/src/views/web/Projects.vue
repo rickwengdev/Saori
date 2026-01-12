@@ -78,9 +78,11 @@ const projects = ref([
     status: 'In Progress',
     statusType: 'info',
     stack: ['Vue 3', 'Vite', 'Naive UI'],
-    github: 'https://github.com/yourname/portfolio'
+    actionText: 'Visit',
+    internalLink: '/',
+    github: 'https://github.com/rickwengdev/Saori-AllinOneAPP/tree/main/SaoriFrontend'
   },
-    {
+  {
     id: 2,
     title: 'Saori Disocord Bot & Dashboard',
     description: 'A full-stack system integrating Discord Bot and Dashboard.',

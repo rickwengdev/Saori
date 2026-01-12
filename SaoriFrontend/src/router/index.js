@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import WebHome from '@/views/web/Home.vue';
 import WebBlog from '@/views/web/Blog.vue';
 import WebProjects from '@/views/web/Projects.vue'; // 新增引用
+import Chat from '@/views/web/Chat.vue'; // 引入新組件
 
 // === Discord Dashboard 頁面 ===
 import DashboardPage from '@/views/discord/DashboardPage.vue'; // 假設你的檔案在 src 根目錄或 views
@@ -30,6 +31,12 @@ const routes = [
     path: '/projects',
     name: 'Projects',
     component: WebProjects
+  },
+  {
+    path: '/chat',
+    name: 'Chat',
+    component: Chat,
+    meta: { title: 'Saori AI' }
   },
   
   // 2. 儀表板區域 (Dashboard Zone) - 需要登入
