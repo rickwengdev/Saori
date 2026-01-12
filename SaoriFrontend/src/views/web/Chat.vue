@@ -151,14 +151,12 @@ const sendMessage = async () => {
       message: text
     });
 
-    console.log("🔥 Backend Response:", response.data); // 這行會讓你在瀏覽器 Console 看到後端到底回了什麼
-
-    if (response.data && response.data.reply) {
+    if (response && response.reply) {
        // 成功情況
-       messages.value.push({ role: 'bot', content: response.data.reply });
-    } else if (response.data && response.data.error) {
+       messages.value.push({ role: 'bot', content: response.reply });
+    } else if (response && response.error) {
        // 後端明確回傳錯誤訊息的情況
-       throw new Error(`Server Error: ${response.data.error}`);
+       throw new Error(`Server Error: ${response.error}`);
     } else {
        // 格式完全無法識別
        throw new Error(`Invalid response format: ${JSON.stringify(response.data)}`);

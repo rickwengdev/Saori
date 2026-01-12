@@ -73,7 +73,7 @@ class AgentService {
 
             // 5. 發送請求 (使用標準 OpenAI 寫法)
             const completion = await this.client.chat.completions.create({
-                model: "gemini-1.5-flash", // 這裡依然指定 Gemini 模型
+                model: "gemini-2.5-pro", // 這裡依然指定 Gemini 模型
                 messages: fullMessageChain,
             });
 
