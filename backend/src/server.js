@@ -1,28 +1,21 @@
-const app = require('./app');
 const Logger = require('./shared/utils/Logger');
-const fs = require('fs');
-const https = require('https');
 const http = require('http');
 
+// Cloud Run 會自動注入 PORT 環境變數 (通常是 8080)
 const PORT = process.env.PORT || 3000;
-const isHttps = process.env.USE_HTTPS === 'true';
 
 async function startServer() {
-    const { initializeApp } = require('./app');
-    const appInstance = await initializeApp();
-
-    if (isHttps) {
-        const sslOptions = {
-            key: fs.readFileSync(process.env.SSL_KEY_PATH || './certs/server.key'),
-            cert: fs.readFileSync(process.env.SSL_CERT_PATH || './certs/server.crt'),
-        };
-        https.createServer(sslOptions, appInstance).listen(PORT, () => {
-            Logger.info(`HTTPS Server is running on port ${PORT}`);
-        });
-    } else {
+    try {
+        const { initializeApp } = require('./app');
+        const appInstance = await initializeApp();
+        
         http.createServer(appInstance).listen(PORT, () => {
-            Logger.info(`HTTP Server is running on port ${PORT}`);
+            Logger.info(`Server is running on port ${PORT}`);
         });
+
+    } catch (error) {
+        Logger.error('Failed to start server:', error);
+        process.exit(1);
     }
 }
 

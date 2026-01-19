@@ -1,22 +1,25 @@
-# Use the official Node.js image.
-# https://hub.docker.com/_/node
-FROM node:latest
+# 使用輕量化的 Alpine 版本，減少映像檔體積 (從 ~1GB 降到 ~100MB)
+FROM node:18-alpine
 
-# Create and change to the app directory.
+# 設定工作目錄
 WORKDIR /usr/src/app
 
-# Copy application dependency manifests to the container image.
-# A wildcard is used to ensure both package.json AND package-lock.json are copied.
+# 設定環境變數為生產模式 (提升效能，不安裝 devDependencies)
+ENV NODE_ENV=production
+
+# 複製 package.json 和 package-lock.json
 COPY package*.json ./
 
-# Install production dependencies.
-RUN npm install
+# 使用 npm ci (Clean Install) 取代 npm install，確保版本一致且速度更快
+RUN npm ci --only=production
 
-# Copy local code to the container image.
+# 複製程式碼
 COPY . .
 
-# Make port 80 available to the world outside this container
-EXPOSE 3000
+# Cloud Run 預設會注入 PORT=8080，這裡宣告一下
+ENV PORT=8080
+EXPOSE 8080
 
-# Run the web service on container startup.
+# 啟動應用
+# 注意：請確保 src/server.js 裡有寫 const port = process.env.PORT || 3000;
 CMD [ "node", "src/server.js" ]
