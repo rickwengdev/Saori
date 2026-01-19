@@ -5,7 +5,7 @@ const Logger = require('../../../shared/utils/Logger'); // 引入集中化 Logge
 class AuthService {
   constructor() {
     // 驗證必要的環境變量
-    if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET || !process.env.JWT_SECRET || !process.env.API_URL) {
+    if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET || !process.env.JWT_SECRET) {
       Logger.error('[AuthService.constructor] Missing required environment variables');
       throw new Error('缺少必要的環境變量');
     }
