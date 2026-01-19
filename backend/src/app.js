@@ -12,7 +12,6 @@ const app = express();
 app.use(cors({ origin: process.env.API_URL || '*', credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
-// 將 HTTP 請求日誌導向我們的 Winston Logger
 app.use(morgan('combined', { 
     stream: { write: (msg) => Logger.info(msg.trim()) } 
 }));
