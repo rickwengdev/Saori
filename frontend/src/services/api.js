@@ -9,7 +9,7 @@ const api = axios.create({
   },
 });
 
-// 請求攔截器 (這裡不需要做任何事了，Cookie 會自動帶)
+// 請求攔截器
 api.interceptors.request.use(
   (config) => config,
   (error) => Promise.reject(error)
