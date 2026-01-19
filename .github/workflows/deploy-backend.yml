@@ -60,7 +60,7 @@ jobs:
             DB_NAME=saori_db
             NODE_ENV=production
             CORS_ORIGIN=*
-            API_URL=https://localhost
+            API_URL=${{ secrets.API_URL }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}
             DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}
