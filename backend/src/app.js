@@ -26,10 +26,6 @@ async function initializeApp() {
     return app;
 }
 
-// 1. Agent 模組 (AI 對話)
-const agentRoutes = require('./modules/agent/agent.routes');
-app.use('/api/agent', agentRoutes);
-
 // 2. Discord 相關模組
 const authRoutes = require('./modules/discord/auth/auth.routes');
 const botRoutes = require('./modules/discord/bot/bot.routes');
@@ -51,10 +47,6 @@ app.use('/api/server', serverRoutes);
 app.use('/api/tracking', trackingRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/welcome-leave', welcomeLeaveRoutes);
-
-// 3. Blog 模組 (預留)
-// const blogRoutes = require('./modules/blog/blog.routes');
-// app.use('/api/blog', blogRoutes);
 
 // 全局錯誤處理
 app.use((err, req, res, next) => {
