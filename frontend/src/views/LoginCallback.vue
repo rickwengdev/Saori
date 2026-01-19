@@ -15,7 +15,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import api from '@/services/api'; // 引入我們剛改好的 api
+import api from '@/services/api';
 
 const router = useRouter();
 const loading = ref(false);

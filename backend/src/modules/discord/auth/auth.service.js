@@ -10,7 +10,7 @@ class AuthService {
       throw new Error('缺少必要的環境變量');
     }
 
-    this.redirectUri = `${process.env.API_URL}:3000/api/auth/callback`;
+    this.redirectUri = `https://saori-backend-613866497622.asia-east1.run.app/api/auth/callback`;
     this.discordApiBaseUrl = 'https://discord.com/api';
     this.jwtSecret = process.env.JWT_SECRET;
 
