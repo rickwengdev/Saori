@@ -1,5 +1,5 @@
 # 使用輕量化的 Alpine 版本，減少映像檔體積 (從 ~1GB 降到 ~100MB)
-FROM node:18-alpine
+FROM node:25-alpine
 
 # 設定工作目錄
 WORKDIR /usr/src/app
