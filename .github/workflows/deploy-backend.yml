@@ -59,5 +59,11 @@ jobs:
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             DB_NAME=saori_db
             NODE_ENV=production
-            # 這裡之後要回來改成 Firebase 的前端網址
-            CORS_ORIGIN=* ```
+            CORS_ORIGIN=*
+            API_URL=https://localhost
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}
+            DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}
+            DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}
+            GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+            
