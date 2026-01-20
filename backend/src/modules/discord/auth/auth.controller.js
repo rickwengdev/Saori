@@ -38,7 +38,7 @@ class AuthController {
         access_token: accessToken,
       });
 
-      res.cookie('auth_token', token, {
+      res.cookie('__session', token, {
         httpOnly: true,
         secure: true,
         maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -74,7 +74,7 @@ class AuthController {
    * 登出
    */
   logout(req, res) {
-    res.clearCookie('auth_token', {
+    res.clearCookie('__session', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',

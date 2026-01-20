@@ -26,7 +26,7 @@ class Authenticator {
    * @throws {Error} 如果 JWT 無效或缺失
    */
   authenticateToken(req, res, next) {
-    const token = req.cookies.auth_token;
+    const token = req.cookies.__session;
 
     if (!token) {
       Logger.warn('[Authenticator] Missing auth token in request cookies');
