@@ -29,12 +29,6 @@
         </n-grid>
       </n-form>
       
-      <n-divider />
-      
-      <n-alert title="Preview" type="info">
-        Welcome: {{ getChannelName(config.welcomeChannelId) }} <br/>
-        Leave: {{ getChannelName(config.leaveChannelId) }}
-      </n-alert>
     </n-spin>
   </n-card>
 </template>
@@ -54,11 +48,6 @@ const config = ref({ welcomeChannelId: null, leaveChannelId: null });
 const channelOptions = computed(() => 
   channels.value.map(c => ({ label: `#${c.name}`, value: c.id }))
 );
-
-const getChannelName = (id) => {
-  const ch = channels.value.find(c => c.id === id);
-  return ch ? `#${ch.name}` : 'Not Set';
-};
 
 onMounted(async () => {
   try {
