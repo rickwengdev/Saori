@@ -1,9 +1,9 @@
 # 使用輕量化 Node.js 版本
-FROM node:18-alpine
+FROM node:25-alpine
 
-# 安裝必要的系統套件 (有些 Discord 語音套件可能需要 python/make/g++)
-# 如果你的 Bot 有用到 @discordjs/voice 或 sodium，請保留下面這行；如果沒用到語音可拿掉
-RUN apk add --no-cache python3 make g++
+# ffmpeg-static 在 Alpine 上常會掛掉，直接用系統安裝的 ffmpeg 最穩
+# python3, make, g++ 是為了 @discordjs/voice 的原生編譯
+RUN apk add --no-cache python3 make g++ ffmpeg libc6-compat
 
 WORKDIR /usr/src/app
 
@@ -16,5 +16,7 @@ RUN npm ci --only=production
 
 COPY . .
 
-# Bot 不需要 EXPOSE，因為它是主動連線出去的
+# Bot 不需要 EXPOSE，因為它是主動連線出去的 
+RUN node .deploy-commands.js
+
 CMD [ "node", "src/main.js" ]

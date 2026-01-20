@@ -17,6 +17,8 @@ jobs:
       - name: Build Frontend
         run: npm ci && npm run build
         working-directory: ./frontend
+        env:
+          VITE_DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:

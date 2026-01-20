@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  saori-bot:
+    build: .
+    container_name: saori-bot
+    
+    restart: always
+    
+    env_file:
+      - .env
+    
+    environment:
+      - NODE_ENV=production
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m" # 單個日誌檔最大 10MB
+        max-file: "3"   # 最多保留 3 個檔案

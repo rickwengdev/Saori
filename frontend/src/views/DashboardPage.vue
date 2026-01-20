@@ -40,8 +40,7 @@ import api from '@/services/api';
 const router = useRouter();
 const loading = ref(true);
 const servers = ref([]);
-const API_URL = import.meta.env.VITE_APP_BASE_URL;
-const CLIENT_ID = import.meta.env.VITE_APP_ClientId;
+const CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID;
 
 onMounted(async () => {
   console.log("🚀 Dashboard 載入中...");
@@ -93,7 +92,7 @@ const handleServerClick = async (server) => {
        window.$message.error('設定失敗，請稍後再試');
      }
   } else {
-     const redirectUri = encodeURIComponent(`${window.location.origin}${API_URL}/auth/callback`);
+     const redirectUri = encodeURIComponent(`${window.location.origin}/api/auth/callback`);
      const url = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&scope=bot&permissions=8&guild_id=${server.id}&response_type=code&redirect_uri=${redirectUri}`;
      window.open(url, '_blank');
   }
