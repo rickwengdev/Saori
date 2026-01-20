@@ -22,7 +22,7 @@ const loading = ref(false);
 const userStore = useUserStore();
 
 const login = () => {
-  window.location.href = `api/auth/discord`;
+  window.location.href = `/api/auth/discord`;
 };
 
 onMounted(async () => {
