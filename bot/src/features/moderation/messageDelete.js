@@ -1,4 +1,5 @@
-import Logger from '../../features/errorhandle/errorhandle.js';
+import logger from '../../utils/Logger.js';
+import ErrorHandler from '../../utils/ErrorHandler.js';
 
 /**
  * @class MessageDeleter
@@ -15,7 +16,6 @@ class MessageDeleter {
         }
         this.interaction = interaction;
         this.channel = interaction.channel;
-        this.logger = new Logger();
     }
 
     /**
@@ -27,7 +27,7 @@ class MessageDeleter {
      */
     async deleteMessages(numberOfMessages = 1, isLargeTimeRange = false) {
         if (isLargeTimeRange || numberOfMessages > 100) {
-            this.logger.info('🔄 Performing multiple batch deletes...');
+            logger.info('🔄 Performing multiple batch deletes...');
             return this.bulkDeleteMessages(numberOfMessages);
         }
         return this.simpleDelete(numberOfMessages);
@@ -41,11 +41,12 @@ class MessageDeleter {
      */
     async simpleDelete(numberOfMessages) {
         try {
-            const deletedMessages = await this.channel.bulkDelete(numberOfMessages, true); // Discord API restricts to messages within 14 days
-            this.logger.info(`✅ Successfully deleted ${deletedMessages.size} messages.`);
+            // Discord API restricts bulkDelete to messages within 14 days
+            const deletedMessages = await this.channel.bulkDelete(numberOfMessages, true); 
+            logger.info(`✅ Successfully deleted ${deletedMessages.size} messages.`);
             return deletedMessages.size;
         } catch (error) {
-            this.logger.error('❌ Error in simple delete:', error);
+            logger.error('❌ Error in simple delete:', error);
             return 0;
         }
     }
@@ -59,26 +60,36 @@ class MessageDeleter {
     async bulkDeleteMessages(numberOfMessages) {
         let remainingMessages = numberOfMessages;
         const batchSize = 100;
-        const delayBetweenBatches = 500; // Milliseconds
+        const delayBetweenBatches = 1000; // 稍微增加延遲以避免 Rate Limit
 
         try {
             while (remainingMessages > 0) {
                 const messagesToDelete = Math.min(remainingMessages, batchSize);
+                
+                // Fetch messages
                 const fetchedMessages = await this.channel.messages.fetch({ limit: messagesToDelete });
+                if (fetchedMessages.size === 0) break;
 
-                this.logger.info(`🗑️ Deleting ${fetchedMessages.size} messages in batch...`);
-                await Promise.allSettled(fetchedMessages.map(message => message.delete()));
+                logger.info(`🗑️ Deleting ${fetchedMessages.size} messages in batch...`);
+                
+                // 嘗試批量刪除，如果失敗則逐條刪除 (針對超過 14 天的訊息)
+                try {
+                    await this.channel.bulkDelete(fetchedMessages, true);
+                } catch (bulkError) {
+                    logger.warn('Bulk delete failed (likely old messages), switching to manual delete...');
+                    await Promise.allSettled(fetchedMessages.map(msg => msg.delete()));
+                }
 
                 remainingMessages -= fetchedMessages.size;
 
                 if (remainingMessages > 0) {
-                    this.logger.info(`⏳ Waiting for ${delayBetweenBatches}ms before next batch...`);
+                    logger.info(`⏳ Waiting for ${delayBetweenBatches}ms before next batch...`);
                     await this.delay(delayBetweenBatches);
                 }
             }
-            return numberOfMessages;
+            return numberOfMessages - remainingMessages;
         } catch (error) {
-            this.logger.error('❌ Error during batch deletion:', error);
+            logger.error('❌ Error during batch deletion:', error);
             return numberOfMessages - remainingMessages;
         }
     }
@@ -92,33 +103,24 @@ class MessageDeleter {
      */
     async handleInteraction(numberOfMessages = 1, isLargeTimeRange = false) {
         try {
-            await this.interaction.deferReply({ ephemeral: true });
-            this.logger.info(`Starting to delete ${numberOfMessages} messages (Large time range: ${isLargeTimeRange})`);
+            // 確保尚未回覆才執行 defer
+            if (!this.interaction.deferred && !this.interaction.replied) {
+                await this.interaction.deferReply({ ephemeral: true });
+            }
+
+            logger.info(`Starting to delete ${numberOfMessages} messages (Large time range: ${isLargeTimeRange})`);
 
             const deletedCount = await this.deleteMessages(numberOfMessages, isLargeTimeRange);
+            
             const replyMessage = deletedCount > 0
                 ? `✅ Successfully deleted ${deletedCount} messages.`
-                : '⚠️ No messages were deleted.';
+                : '⚠️ No messages were deleted (Check permissions or message age).';
 
-            this.logger.info(replyMessage);
-            await this.interaction.editReply({ content: replyMessage, ephemeral: true });
+            logger.info(replyMessage);
+            await this.interaction.editReply({ content: replyMessage });
+
         } catch (error) {
-            this.handleErrorResponse('❌ Failed to delete messages.', error);
-        }
-    }
-
-    /**
-     * @method handleErrorResponse
-     * @description Unified error handling.
-     * @param {string} errorMessage - Error message to be logged.
-     * @param {Error} error - Error object.
-     */
-    async handleErrorResponse(errorMessage, error) {
-        this.logger.error(errorMessage, error);
-        try {
-            await this.interaction.editReply({ content: errorMessage, ephemeral: true });
-        } catch (replyError) {
-            this.logger.error('❌ Error replying to interaction:', replyError);
+            await ErrorHandler.handle(error, this.interaction, 'Failed to delete messages.');
         }
     }
 

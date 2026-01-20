@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import MusicPlayer from '../../features/music/MusicPlayer.js/index.js';
+import MusicPlayer from '../../features/music/MusicPlayer.js';
 import logger from '../../utils/Logger.js';
 import ErrorHandler from '../../utils/ErrorHandler.js';
 

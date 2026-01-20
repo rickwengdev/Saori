@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import ytdl from '@distube/ytdl-core';
-import MusicPlayer from '../../features/music/MusicPlayer.js/index.js'; // 注意大小寫 MusicPlayer
+import MusicPlayer from '../../features/music/MusicPlayer.js';
 import logger from '../../utils/Logger.js';
 import ErrorHandler from '../../utils/ErrorHandler.js';
 

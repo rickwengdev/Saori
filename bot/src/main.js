@@ -121,18 +121,18 @@ client.once(Events.ClientReady, async (c) => {
  * 初始化各個功能模組
  */
 function setupFeatures() {
-    const apiEndpoint = process.env.apiEndpoint;
+    const API_ENDPOINT = process.env.API_ENDPOINT;
     
-    if (!apiEndpoint) {
-        logger.warn('⚠️ apiEndpoint is missing in .env! Some features might fail.');
+    if (!API_ENDPOINT) {
+        logger.warn('⚠️ API_ENDPOINT is missing in .env! Some features might fail.');
     }
 
     try {
-        new MessageReactionHandler(client, apiEndpoint);
-        new GuildMembers(client, apiEndpoint);
-        new DynamicVoiceChannelManager(client, apiEndpoint);
-        new TrackingMembersNumber(client, apiEndpoint);
-        new GuildLogService(client, apiEndpoint); // 這裡改用新名稱
+        new MessageReactionHandler(client, API_ENDPOINT);
+        new GuildMembers(client, API_ENDPOINT);
+        new DynamicVoiceChannelManager(client, API_ENDPOINT);
+        new TrackingMembersNumber(client, API_ENDPOINT);
+        new GuildLogService(client, API_ENDPOINT);
 
         logger.info('🚀 All feature managers initialized successfully.');
     } catch (error) {
