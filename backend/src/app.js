@@ -8,19 +8,10 @@ const checkAndCreateTables = require('./shared/database/checkAndCreateTable');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 // Middlewares
 app.use(cors({ origin:'https://saori-483222.web.app', credentials: true }));
-app.use(session({
-  secret: process.env.JWT_SECRET || 'secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    sameSite: 'none',
-    secure: true,      
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 1天
-  }
-}));
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('combined', { 
