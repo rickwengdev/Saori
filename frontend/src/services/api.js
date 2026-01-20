@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_URL,
-  withCredentials: true, // 關鍵：讓瀏覽器自動攜帶 Cookie
+  withCredentials: true,
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
