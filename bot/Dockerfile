@@ -1,5 +1,5 @@
 # 使用輕量化 Node.js 版本
-FROM node:25-alpine
+FROM node:22-alpine
 
 # ffmpeg-static 在 Alpine 上常會掛掉，直接用系統安裝的 ffmpeg 最穩
 # python3, make, g++ 是為了 @discordjs/voice 的原生編譯
