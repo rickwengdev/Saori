@@ -47,11 +47,6 @@ onMounted(async () => {
   console.log("🚀 Dashboard 載入中...");
   try {
     const res = await api.get('/user/guilds');
-    console.log("✅ 後端原始回應:", res); 
-
-    // 🔥 關鍵修正：自動判斷資料在哪一層
-    // 如果 res 本身是陣列，就用 res
-    // 如果 res 是物件且裡面有 data 屬性 (res.data)，就用 res.data
     const guildsList = Array.isArray(res) ? res : (res.data || []);
 
     if (!Array.isArray(guildsList)) {
@@ -61,7 +56,6 @@ onMounted(async () => {
 
     const promises = guildsList.map(async (server) => {
        try {
-         // 這裡也要注意，如果 checkBot 回傳也有包裝，要用 check.data 或 check
          const checkRes = await api.get(`/bot/${server.id}/checkBot`);
          const isBotInServer = checkRes.isBotInServer ?? checkRes.data?.isBotInServer ?? false;
 
