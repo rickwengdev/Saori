@@ -18,11 +18,11 @@ class ServerController {
     try {
       Logger.info(`[ServerController] Fetching server info for serverId: ${serverId}`);
       const server = await ServerService.getServerInfo(serverId);
-      Logger.info(`[ServerController] Successfully fetched server info for serverId: ${serverId}`);
+      Logger.info(`[ServerController] Successfully fetched server info for serverId: ${serverId}`)
       res.status(200).json({ success: true, message: '伺服器信息加載成功', data: server });
     } catch (error) {
       Logger.error(`[ServerController] Error fetching server info for serverId: ${serverId}: ${error.message}`);
-      res.status(404).json({ success: false, message: error.message });
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 

@@ -11,14 +11,22 @@ class ServerController {
     try {
       const { serverId } = req.params;
       Logger.info(`[ServerController] Fetching welcome/leave configuration for serverId: ${serverId}`);
-      const config = await WelcomeLeaveService.getWelcomeLeave(serverId);
-      if (config) {
-        Logger.info(`[ServerController] Successfully fetched configuration for serverId: ${serverId}`);
-        res.status(200).json({ success: true, config });
+      
+      let config = await WelcomeLeaveService.getWelcomeLeave(serverId);
+      
+      if (!config) {
+        Logger.info(`[ServerController] No configuration found for ${serverId}, returning default config.`);
+        config = {
+          server_id: serverId,
+          welcome_channel_id: null, // 前端依此判斷顯示「請選擇頻道」
+          leave_channel_id: null,
+        };
       } else {
-        Logger.warn(`[ServerController] No configuration found for serverId: ${serverId}`);
-        res.status(404).json({ success: false, message: "Configuration not found." });
+        Logger.info(`[ServerController] Successfully fetched configuration for serverId: ${serverId}`);
       }
+
+      res.status(200).json({ success: true, config });
+
     } catch (error) {
       Logger.error(`[ServerController] Error fetching configuration for serverId: ${serverId}: ${error.message}`);
       res.status(500).json({ success: false, message: "Failed to fetch server configuration." });

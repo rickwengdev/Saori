@@ -11,10 +11,13 @@ class LogsController {
     const { serverId } = req.params;
     try {
       Logger.info(`Fetching log channel configuration for serverId: ${serverId}`);
-      const config = await LogService.getLogChannel(serverId);
+      let config = await LogService.getLogChannel(serverId);
       if (!config) {
         Logger.warn(`Log channel not found for serverId: ${serverId}`);
-        return res.status(404).json({ message: 'Log channel not found' });
+        config = {
+          server_id: serverId,
+          log_channel_id: null, // 前端依此判斷顯示「請選擇頻道」
+        };
       }
       Logger.info(`Successfully fetched log channel configuration for serverId: ${serverId}`);
       res.json({ success: true, config });

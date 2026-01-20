@@ -10,14 +10,14 @@ class TrackingMembersController {
     const { serverId } = req.params;
 
     try {
-      const config = await TrackingMembersService.getTrackingMemberConfig(serverId);
+      let config = await TrackingMembersService.getTrackingMemberConfig(serverId);
 
       if (!config) {
-        Logger.info(`[TrackingMembersController.getTrackingConfig] No configuration found for serverId=${serverId}`);
-        return res.status(404).json({
-          success: false,
-          message: '伺服器的成員紀錄配置不存在',
-        });
+        Logger.info(`[TrackingMembersController.getTrackingConfig] No configuration found for serverId=${serverId}, returning default config.`);
+        config = {
+          server_id: serverId,
+          tracking_channel_id: null, // 前端依此判斷顯示「請選擇頻道」
+        };
       }
 
       Logger.info(`[TrackingMembersController.getTrackingConfig] Successfully fetched configuration for serverId=${serverId}`);

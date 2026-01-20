@@ -11,12 +11,21 @@ class DynamicVoiceChannelController {
     const { serverId } = req.params;
     try {
       Logger.info(`Fetching dynamic voice channel configuration for server ID: ${serverId}`);
-      const config = await DynamicVoiceChannelService.getDynamicVoiceChannels(serverId);
+      let config = await DynamicVoiceChannelService.getDynamicVoiceChannels(serverId);
+
+      if (!config) {
+        Logger.info(`No dynamic voice channel configuration found for server ID: ${serverId}, returning default config.`);
+        config = {
+          server_id: serverId,
+          base_channel_id: null, // 前端依此判斷顯示「請選擇頻道」
+        };
+      }
+
       Logger.info(`Successfully fetched configuration for server ID: ${serverId}`);
       res.status(200).json({ success: true, config });
     } catch (error) {
       Logger.error(`Error fetching dynamic voice channels for server ID ${serverId}: ${error.message}`);
-      res.status(500).json({ error: 'Failed to fetch dynamic voice channel configuration' });
+      res.status(500).json({ error: `Failed to fetch dynamic voice channel configuration: ${error.message}` });
     }
   }
 

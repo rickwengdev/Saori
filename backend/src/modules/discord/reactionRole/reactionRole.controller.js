@@ -54,7 +54,13 @@ class ReactionRoleController {
       }
 
       Logger.info(`[getReactionRoles] Fetching reaction roles for ${serverId}`);
-      const reactionRoles = await ReactionRoleService.getReactionRolesByServer(serverId);
+      let reactionRoles = await ReactionRoleService.getReactionRolesByServer(serverId);
+
+      if (!reactionRoles) {
+        Logger.info(`[getReactionRoles] No reaction roles found for ${serverId}`);
+        reactionRoles = [];
+      }
+
       res.status(200).json({ success: true, data: reactionRoles });
     } catch (error) {
       this.handleError(res, error, 'Failed to fetch reaction roles');
