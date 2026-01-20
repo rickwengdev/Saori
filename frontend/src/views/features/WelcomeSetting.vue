@@ -66,6 +66,18 @@ onMounted(async () => {
       api.get(`/channel/${serverId}/channels`),
       api.get(`/welcome-leave/${serverId}/getWelcomeLeave`)
     ]);
+
+    // 🕵️‍♂️ 加入這段偵錯代碼
+console.log('原始 API 回傳:', chRes);
+if (chRes.channels && chRes.channels.length > 0) {
+    const firstChannel = chRes.channels[0];
+    console.log('第一筆頻道資料:', firstChannel);
+    console.log('Type 的值:', firstChannel.type);
+    console.log('Type 的型別:', typeof firstChannel.type); // 是 'number' 還是 'string'？
+} else {
+    console.warn('⚠️ API 沒有回傳 channels 陣列，或是陣列為空');
+}
+
     channels.value = (chRes.channels || []).filter(c => c.type === 0);
     config.value.welcomeChannelId = confRes.config?.welcome_channel_id || null;
     config.value.leaveChannelId = confRes.config?.leave_channel_id || null;

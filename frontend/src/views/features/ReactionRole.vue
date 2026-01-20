@@ -102,7 +102,7 @@ const fetchData = async () => {
        api.get(`/channel/${serverId}/channels`),
        api.get(`/reaction-role/${serverId}/roles`),
        api.get(`/reaction-role/${serverId}/emojis`),
-       api.get(`/api/${serverId}/reaction-roles`) // 你的 Preview API
+       api.get(`/${serverId}/reaction-roles`)
     ]);
     
     channels.value = (chRes.channels || []).filter(c => c.type === 0);
