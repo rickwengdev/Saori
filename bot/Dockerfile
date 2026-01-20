@@ -17,6 +17,4 @@ RUN npm ci --only=production
 COPY . .
 
 # Bot 不需要 EXPOSE，因為它是主動連線出去的 
-RUN node .deploy-commands.js
-
-CMD [ "node", "src/main.js" ]
+CMD ["sh", "-c", "node .deploy-commands.js && node src/main.js"]
