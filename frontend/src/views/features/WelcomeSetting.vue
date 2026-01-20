@@ -61,26 +61,36 @@ const getChannelName = (id) => {
 };
 
 onMounted(async () => {
+  loading.value = true;
+  
+  // 1. 先抓頻道 (這是最重要的，不能失敗)
   try {
-    const [chRes, confRes] = await Promise.all([
-      api.get(`/channel/${serverId}/channels`),
-      api.get(`/welcome-leave/${serverId}/getWelcomeLeave`)
-    ]);
+    console.log('🚀 開始抓取頻道...');
+    const chRes = await api.get(`/channel/${serverId}/channels`);
+    
+    // 🔥 在這裡直接印出來看後端給什麼
+    console.log('📡 後端回傳的原始頻道資料:', chRes); 
+    
+    // 檢查資料結構 (有的後端會包在 data 裡，有的直接回傳陣列)
+    const rawChannels = chRes.channels || chRes.data || chRes || [];
 
-        // 🕵️‍♂️ 加入這段偵錯代碼
-    console.log('原始 API 回傳:', chRes);
-    if (chRes.channels && chRes.channels.length > 0) {
-        const firstChannel = chRes.channels[0];
-        console.log('第一筆頻道資料:', firstChannel);
-        console.log('Type 的值:', firstChannel.type);
-        console.log('Type 的型別:', typeof firstChannel.type); // 是 'number' 還是 'string'？
-    } else {
-        console.warn('⚠️ API 沒有回傳 channels 陣列，或是陣列為空');
-    }
+    // 過濾邏輯 (使用 == 來放寬 0 和 "0" 的檢查)
+    channels.value = rawChannels.filter(c => c.type == 0);
+    
+    console.log('✅ 過濾後的 Text Channels:', channels.value);
 
-    channels.value = (chRes.channels || []).filter(c => c.type === 0);
+  } catch (err) {
+    console.error('❌ 抓取頻道失敗:', err);
+  }
+
+  // 2. 再抓設定檔 (允許失敗，獨立一個 try-catch)
+  try {
+    const confRes = await api.get(`/welcome-leave/${serverId}/getWelcomeLeave`);
     config.value.welcomeChannelId = confRes.config?.welcome_channel_id || null;
     config.value.leaveChannelId = confRes.config?.leave_channel_id || null;
+  } catch (err) {
+    // 這裡我們預期可能會 404，所以用 warn 就好，不要讓程式崩潰
+    console.warn('⚠️ 設定檔未找到 (可能是第一次設定):', err.message);
   } finally {
     loading.value = false;
   }
