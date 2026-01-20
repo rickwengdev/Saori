@@ -15,10 +15,11 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import api from '@/services/api';
+import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
 const loading = ref(false);
+const userStore = useUserStore();
 const API_URL = import.meta.env.VITE_APP_BASE_URL;
 
 const login = () => {
@@ -26,33 +27,16 @@ const login = () => {
 };
 
 onMounted(async () => {
-  // 1. 檢查網址是否有 token 參數 (例如 ?token=xyz)
-  const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get('token');
-
-  if (token) {
+  try {
     loading.value = true;
-    
-    // 🔥 關鍵修正：存入 Cookie 而不是 localStorage
-    // 設定過期時間為 7 天 (或是你可以不設 expires 讓它變成 Session Cookie)
-    document.cookie = `token=${token}; path=/; max-age=604800; Secure; SameSite=Lax`;
-
-    // 存完後跳轉
-    router.push('/dashboard');
-  } else {
-    // 2. 如果網址沒 token，檢查是否已經有登入狀態 (後端 Session)
-    // 這是為了防止用戶按重新整理時被踢回登入頁
-    try {
-      loading.value = true;
-      const res = await api.get('/auth/status'); // 呼叫後端確認狀態
-      if (res.isLoggedIn) {
-        router.push('/dashboard');
-      } else {
-        loading.value = false; // 留在登入頁
-      }
-    } catch (e) {
-      loading.value = false;
+    await userStore.checkAuth();
+    if (userStore.isLoggedIn) {
+      router.push('/dashboard');
+    } else {
+      loading.value = false; // 留在登入頁
     }
+  } catch (e) {
+    loading.value = false;
   }
 });
 </script>

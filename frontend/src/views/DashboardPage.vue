@@ -93,7 +93,7 @@ const handleServerClick = async (server) => {
        window.$message.error('設定失敗，請稍後再試');
      }
   } else {
-     const redirectUri = encodeURIComponent(`${API_URL}/auth/callback`);
+     const redirectUri = encodeURIComponent(`${window.location.origin}${API_URL}/auth/callback`);
      const url = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&scope=bot&permissions=8&guild_id=${server.id}&response_type=code&redirect_uri=${redirectUri}`;
      window.open(url, '_blank');
   }

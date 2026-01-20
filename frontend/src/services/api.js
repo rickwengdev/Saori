@@ -23,7 +23,6 @@ api.interceptors.response.use(
   (error) => {
     const { response } = error;
     if (response) {
-      // 如果後端回傳 401，代表 Cookie 失效或沒權限
       if (response.status === 401) {
         console.warn('Session expired (401), redirecting to login...');
         if (window.location.pathname !== '/' && !window.location.pathname.includes('/auth/callback')) {
