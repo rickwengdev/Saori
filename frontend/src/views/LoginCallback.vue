@@ -20,10 +20,9 @@ import { useUserStore } from '@/stores/user';
 const router = useRouter();
 const loading = ref(false);
 const userStore = useUserStore();
-const API_URL = import.meta.env.VITE_APP_BASE_URL;
 
 const login = () => {
-  window.location.href = `${API_URL}/auth/discord`;
+  window.location.href = `api/auth/discord`;
 };
 
 onMounted(async () => {
