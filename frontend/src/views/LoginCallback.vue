@@ -1,126 +1,72 @@
 <template>
-  <div class="debug-container">
-    <n-card title="🕵️‍♂️ 登入狀態偵錯 (Debug Mode)">
-      
-      <div class="status-row">
-        <n-tag type="info">API Base URL</n-tag>
-        <code>{{ debugInfo.apiUrl }}</code>
-        <n-text depth="3" v-if="debugInfo.apiUrl !== '/api'">
-           ⚠️ 警告：這應該要是 '/api' 才能走 Firebase Rewrite
-        </n-text>
-      </div>
-
-      <div class="status-row">
-        <n-tag type="warning">瀏覽器現有 Cookie</n-tag>
-        <code class="cookie-box">{{ debugInfo.cookie || '(無 Cookie)' }}</code>
-      </div>
-
-      <div class="status-row">
-        <n-tag :type="debugInfo.apiStatus === 'success' ? 'success' : 'error'">
-          API 連線測試 (/auth/status)
-        </n-tag>
-        <pre class="json-box">{{ debugInfo.apiResponse }}</pre>
-      </div>
-
-      <n-divider />
-
-      <n-space vertical>
-        <n-button type="primary" block @click="startLogin">
-          1. 前往 Discord 登入 (重整流程)
-        </n-button>
-        <n-button secondary block @click="checkStatus">
-          2. 手動檢查狀態
-        </n-button>
-        <n-button tertiary block @click="forceCleanup">
-          清除所有快取與 Cookie
-        </n-button>
-      </n-space>
-
+  <div class="login-container">
+    <n-card class="login-card">
+      <n-h2>Saori Dashboard</n-h2>
+      <n-spin size="large" v-if="loading">
+        <template #description>Verifying Session...</template>
+      </n-spin>
+      <n-button v-else type="primary" size="large" block @click="login">
+        Login with Discord
+      </n-button>
     </n-card>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import api from '@/services/api';
 
+const router = useRouter();
+const loading = ref(false);
 const API_URL = import.meta.env.VITE_APP_BASE_URL;
 
-const debugInfo = reactive({
-  apiUrl: API_URL,
-  cookie: document.cookie,
-  apiStatus: 'pending', // pending, success, error
-  apiResponse: '等待檢測...',
-});
-
-const startLogin = () => {
-  // 這裡應該要導向 /api/auth/discord
-  // 如果 API_URL 是 /api，那最終網址就是 https://你的網域/api/auth/discord
-  const target = `${API_URL}/auth/discord`;
-  console.log('Redirecting to:', target);
-  window.location.href = target;
+const login = () => {
+  window.location.href = `${API_URL}/auth/discord`;
 };
 
-const checkStatus = async () => {
-  debugInfo.apiResponse = '載入中...';
-  try {
-    // 這裡我們直接看 api.get 的結果
-    const res = await api.get('/auth/status');
-    debugInfo.apiStatus = 'success';
-    debugInfo.apiResponse = JSON.stringify(res, null, 2);
+onMounted(async () => {
+  // 1. 檢查網址是否有 token 參數 (例如 ?token=xyz)
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  if (token) {
+    loading.value = true;
     
-    // 如果後端回傳 success: true，代表 Cookie 成功送達後端了！
-  } catch (err) {
-    debugInfo.apiStatus = 'error';
-    debugInfo.apiResponse = `Error: ${err.message}\n` + 
-                            (err.response ? JSON.stringify(err.response.data, null, 2) : '');
+    // 🔥 關鍵修正：存入 Cookie 而不是 localStorage
+    // 設定過期時間為 7 天 (或是你可以不設 expires 讓它變成 Session Cookie)
+    document.cookie = `token=${token}; path=/; max-age=604800; Secure; SameSite=Lax`;
+
+    // 存完後跳轉
+    router.push('/dashboard');
+  } else {
+    // 2. 如果網址沒 token，檢查是否已經有登入狀態 (後端 Session)
+    // 這是為了防止用戶按重新整理時被踢回登入頁
+    try {
+      loading.value = true;
+      const res = await api.get('/auth/status'); // 呼叫後端確認狀態
+      if (res.isLoggedIn) {
+        router.push('/dashboard');
+      } else {
+        loading.value = false; // 留在登入頁
+      }
+    } catch (e) {
+      loading.value = false;
+    }
   }
-  // 更新 Cookie 顯示 (雖然 HttpOnly Cookie 看不到，但如果有其他 Cookie 可以參考)
-  debugInfo.cookie = document.cookie;
-};
-
-const forceCleanup = () => {
-  // 清除 Cookie (僅限非 HttpOnly)
-  document.cookie.split(";").forEach((c) => {
-    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-  });
-  window.location.reload();
-};
-
-onMounted(() => {
-  checkStatus();
 });
 </script>
 
 <style scoped>
-.debug-container {
-  padding: 20px;
-  max-width: 600px;
-  margin: 0 auto;
-  background: #1a1a1a;
-  min-height: 100vh;
+.login-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #101014 0%, #2c2c32 100%);
 }
-.status-row {
-  margin-bottom: 15px;
-}
-code {
-  background: #333;
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: #a6e22e;
-  word-break: break-all;
-}
-.cookie-box {
-  display: block;
-  margin-top: 5px;
-  font-size: 12px;
-}
-.json-box {
-  background: #000;
-  color: #fff;
-  padding: 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  overflow-x: auto;
+.login-card {
+  width: 400px;
+  text-align: center;
 }
 </style>
