@@ -38,6 +38,8 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.DirectMessages,      
+        GatewayIntentBits.MessageContent
     ],
     partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 });
@@ -121,18 +123,12 @@ client.once(Events.ClientReady, async (c) => {
  * 初始化各個功能模組
  */
 function setupFeatures() {
-    const API_ENDPOINT = process.env.API_ENDPOINT;
-    
-    if (!API_ENDPOINT) {
-        logger.warn('⚠️ API_ENDPOINT is missing in .env! Some features might fail.');
-    }
-
     try {
-        new MessageReactionHandler(client, API_ENDPOINT);
-        new GuildMembers(client, API_ENDPOINT);
-        new DynamicVoiceChannelManager(client, API_ENDPOINT);
-        new TrackingMembersNumber(client, API_ENDPOINT);
-        new GuildLogService(client, API_ENDPOINT);
+        new MessageReactionHandler(client);
+        new GuildMembers(client);
+        new DynamicVoiceChannelManager(client);
+        new TrackingMembersNumber(client);
+        new GuildLogService(client);
 
         logger.info('🚀 All feature managers initialized successfully.');
     } catch (error) {

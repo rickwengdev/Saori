@@ -23,7 +23,7 @@ class GuildMembers {
 
     async fetchGuildConfig(guildId) {
         try {
-            const data = await api.get(`/api/${guildId}/getWelcomeLeave`);
+            const data = await api.get(`/api/welcome-leave/${guildId}/getWelcomeLeave`);
             return data.config || null;
         } catch (error) {
             return null;

@@ -21,7 +21,7 @@ class GuildLogService {
 
     async getLogChannelId(guildId) {
         try {
-            const data = await api.get(`/api/${guildId}/log-channel`);
+            const data = await api.get(`/api/log/${guildId}/log-channel`);
             return data?.config?.log_channel_id || null;
         } catch (error) {
             return null;

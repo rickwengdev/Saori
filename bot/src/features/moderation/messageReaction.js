@@ -51,7 +51,7 @@ class MessageReactionHandler {
         const emojiKey = reaction.emoji.id || reaction.emoji.name;
 
         try {
-            const response = await api.get(`/api/${guildId}/reaction-roles`);
+            const response = await api.get(`/api/reaction-role/${guildId}/reaction-roles`);
             
             if (!response.success || !response.data) return { role: null, member: null };
 

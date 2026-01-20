@@ -38,7 +38,7 @@ class DynamicVoiceChannelManager {
 
     async getTriggerChannelId(guildId) {
         try {
-            const data = await api.get(`/api/${guildId}/dynamic-voice-channels`);
+            const data = await api.get(`/api/dynamic/${guildId}/dynamic-voice-channels`);
             return data?.config?.base_channel_id || null;
         } catch (error) {
             return null;
