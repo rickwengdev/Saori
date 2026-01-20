@@ -129,22 +129,19 @@ class DatabaseService {
 
   // 檢查並創建所有表
   async checkAndCreateAllTables() {
-    for (const table of this.tables) {
-      try {
-        Logger.info(`[DatabaseService.checkAndCreateAllTables] Checking table "${table.name}"`);
-        const exists = await this.isTableExists(table.name);
-        if (!exists) {
-          Logger.info(`[DatabaseService.checkAndCreateAllTables] Table "${table.name}" does not exist. Creating...`);
-          await this.createTable(table.schema);
-          Logger.info(`[DatabaseService.checkAndCreateAllTables] Table "${table.name}" created successfully`);
-        } else {
-          Logger.info(`[DatabaseService.checkAndCreateAllTables] Table "${table.name}" already exists`);
+      for (const table of this.tables) {
+        try {
+          Logger.info(`[DatabaseService.checkAndCreateAllTables] Checking table "${table.name}"`);
+          const exists = await this.isTableExists(table.name);
+          if (!exists) {
+            await this.createTable(table.schema);
+          }
+        } catch (error) {
+          Logger.error(`[DatabaseService.checkAndCreateAllTables] Error processing table "${table.name}": ${error.message}`);
+          throw error; 
         }
-      } catch (error) {
-        Logger.error(`[DatabaseService.checkAndCreateAllTables] Error processing table "${table.name}": ${error.message}`);
       }
     }
-  }
 }
 
 module.exports = new DatabaseService();
