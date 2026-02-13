@@ -1,4 +1,4 @@
-# 使用輕量化的 Alpine 版本，減少映像檔體積 (從 ~1GB 降到 ~100MB)
+# 使用輕量化的 Alpine 版本
 FROM node:25-alpine
 
 # 設定工作目錄
