@@ -8,7 +8,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  REGION: asia-east1
+  REGION: us-central1
   REPO_NAME: saori-repo
   SERVICE_NAME: saori-backend
 
