@@ -21,9 +21,18 @@ app.use(morgan('combined', {
 // === 模組路由掛載 ===
 // 在啟動時檢查並建立必要的資料庫表格
 async function initializeApp() {
-    console.log('正在初始化資料庫...');
-    await checkAndCreateTables.checkAndCreateAllTables();
-    console.log('資料庫初始化完成');
+    Logger.info('初始化資料庫...');
+    
+    try {
+        // 嘗試連接並建立表格
+        await checkAndCreateTables.checkAndCreateAllTables();
+        Logger.info('資料庫初始化完成');
+    } catch (error) {
+        Logger.error(`資料庫初始化失敗: ${error.message}`);
+        console.error('Database Init Failed:', error); // 在控制台也顯示一下
+    }
+
+    // 無論資料庫是否成功，都回傳 app 實例
     return app;
 }
 
@@ -38,6 +47,7 @@ const serverRoutes = require('./modules/discord/server/server.routes');
 const trackingRoutes = require('./modules/discord/tracking/tracking.routes');
 const userRoutes = require('./modules/discord/user/user.routes');
 const welcomeLeaveRoutes = require('./modules/discord/welcomeleave/welcomeleave.routes');
+
 app.use('/api/auth', authRoutes);
 app.use('/api/bot', botRoutes);
 app.use('/api/channel', channelRoutes);
@@ -55,4 +65,4 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: 'Internal Server Error' });
 });
 
-module.exports = {app, initializeApp };
+module.exports = { app, initializeApp };
