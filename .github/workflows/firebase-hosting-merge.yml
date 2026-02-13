@@ -19,12 +19,11 @@ jobs:
         working-directory: ./frontend
         env:
           VITE_DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
-
+          
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SAORI_483222 }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SAORI_5B7DA }}
           channelId: live
-          projectId: saori-483222
+          projectId: saori-5b7da
           entryPoint: ./frontend
-            
