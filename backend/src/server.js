@@ -2,7 +2,7 @@ const Logger = require('./shared/utils/Logger');
 const http = require('http');
 
 // Cloud Run 會自動注入 PORT 環境變數 (通常是 8080)
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 async function startServer() {
     try {
