@@ -14,14 +14,17 @@ const dbConfig = {
 };
 
 // 2. 根據環境變數設定連線方式
-if (process.env.DB_HOST && process.env.DB_HOST.startsWith('/cloudsql/')) {
+if (process.env.DB_HOST 
+    // && process.env.DB_HOST.startsWith('/cloudsql/')
+    ){
     Logger.info(`[Database] Using Unix Socket: ${process.env.DB_HOST}`);
     dbConfig.socketPath = process.env.DB_HOST; 
-} else {
-    Logger.info(`[Database] Using TCP Host: ${process.env.DB_HOST || 'localhost'}`);
-    dbConfig.host = process.env.DB_HOST || 'localhost';
-    dbConfig.port = process.env.DB_PORT || 3306;
 }
+// else {
+//     Logger.info(`[Database] Using TCP Host: ${process.env.DB_HOST || 'localhost'}`);
+//     dbConfig.host = process.env.DB_HOST || 'localhost';
+//     dbConfig.port = process.env.DB_PORT || 3306;
+// }
 
 // 3. 建立連接池
 const pool = mysql.createPool(dbConfig);
