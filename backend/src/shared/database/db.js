@@ -14,7 +14,7 @@ const dbConfig = {
 };
 
 // 2. 根據環境變數設定連線方式
-if (process.env.DB_HOST && process.env.NODE_ENV === 'production') {
+if (process.env.DB_HOST && process.env.NODE_ENV == 'production') {
     Logger.info(`[Database] Using Unix Socket: ${process.env.DB_HOST}`);
     dbConfig.socketPath = process.env.DB_HOST; 
 } else {
