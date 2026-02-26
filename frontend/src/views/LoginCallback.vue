@@ -72,7 +72,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useUserStore } from '@/stores/user';
+import { useUserStore } from '../stores/user';
 
 const router = useRouter();
 const loading = ref(true);
