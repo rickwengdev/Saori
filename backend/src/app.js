@@ -11,7 +11,7 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Middlewares
-app.use(cors({ origin:'https://saori-5b7da.web.app', credentials: true }));
+app.use(cors({ origin:process.env.CORS_ORIGIN, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('combined', { 

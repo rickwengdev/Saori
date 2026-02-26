@@ -3,7 +3,7 @@ const Logger = require('../../../shared/utils/Logger');
 
 class AuthController {
   constructor() {
-    this.dashboardUrl = `https://saori-483222.web.app/dashboard`;
+    this.dashboardUrl = `${process.env.CORS_ORIGIN}/dashboard`;
   }
 
   /**
