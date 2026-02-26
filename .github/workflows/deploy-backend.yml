@@ -51,7 +51,7 @@ jobs:
           region: ${{ env.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
           # 關鍵：連結 Cloud SQL
-          flags: --add-cloudsql-instances=${{ secrets.DB_INSTANCE_NAME }}
+          flags: --add-cloudsql-instances=${{ secrets.DB_INSTANCE_NAME }} --allow-unauthenticated
           # 設定環境變數
           env_vars: |
             DB_HOST=/cloudsql/${{ secrets.DB_INSTANCE_NAME }}
