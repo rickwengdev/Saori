@@ -5,12 +5,12 @@ const Logger = require('../../../shared/utils/Logger'); // 引入集中化 Logge
 class AuthService {
   constructor() {
     // 驗證必要的環境變量
-    if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET || !process.env.JWT_SECRET) {
+    if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET || !process.env.JWT_SECRET || !process.env.CORS_ORIGIN) {
       Logger.error('[AuthService.constructor] Missing required environment variables');
       throw new Error('缺少必要的環境變量');
     }
 
-    this.redirectUri = `https://saori-483222.web.app/api/auth/callback`;
+    this.redirectUri = `${process.env.CORS_ORIGIN}/api/auth/callback`;
     this.discordApiBaseUrl = 'https://discord.com/api';
     this.jwtSecret = process.env.JWT_SECRET;
 
