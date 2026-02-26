@@ -55,7 +55,7 @@ jobs:
           # 設定環境變數
           env_vars: |
             DB_HOST=/cloudsql/${{ secrets.DB_INSTANCE_NAME }}
-            DB_USER=saori
+            DB_USER=postgres
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             DB_NAME=saori_db
             NODE_ENV=production
